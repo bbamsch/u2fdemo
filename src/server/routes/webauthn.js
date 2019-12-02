@@ -12,6 +12,38 @@ function message(message) {
   }
 }
 
+router.post('/login', async (request, response) => {
+  if (!request.body) {
+    response.status(400).json(memssage('missing request body'));
+    return;
+  }
+
+  if (!request.body.username) {
+    response.status(400).json(message('username field not provided'));
+    return;
+  }
+
+  const username = request.body.username;
+  const userKey = datastore.key(['User', username]);
+  const [user] = await datastore.get(userKey);
+
+  if (!user) {
+    response.status(404).json(message('user not found'));
+    return;
+  }
+
+  if (!user.registered) {
+    response.status(400).json(message('user registration incomplete'));
+    return;
+  }
+
+  const assertion = utils.generateServerGetAssertion(user.authenticators);
+  request.session.challenge = assertion.challenge;
+  request.session.username = username;
+
+  response.json(assertion);
+});
+
 router.post('/register', async (request, response) => {
   if (!request.body) {
     response.status(400).json(message('missing request body'));
@@ -165,6 +197,8 @@ router.post('/response', async (request, response) => {
       response.status(401).json(message('unable to verify signature'));
       return;
     }
+  } else if (webauthn.response.authenticatorData !== undefined) {
+    // TODO
   } else {
     response.status(400).json(message('unable to determine response type'));
     return;

@@ -10,6 +10,11 @@ const config = require('./config.json');
 
 const DIST_DIR = __dirname + '/dist'; 
 
+/** Configuration */
+for (const [key, value] of Object.entries(config)) {
+  app.set(key, value);
+}
+
 /** Middleware */
 app.use(bodyParser.json());
 app.use(cookieSession({

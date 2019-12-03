@@ -1,9 +1,10 @@
 module.exports = {
-  mode: 'development',
-  entry: './index.js',
+  entry: {
+    app: './src/client/index.js',
+  },
   output: {
-    filename: 'main.js',
-    publicPath: 'dist'
+    publicPath: 'js',
+    filename: '[name].js',
   },
   module: {
     rules: [
